@@ -32,9 +32,12 @@ public class Connect4Controller  {
     private final Circle[][] cells = new Circle[ROWS][COLUMNS];
     private Connect4LogicGame logicGame = new Connect4LogicGame();
 
+    private AudioClip coinSound;
+
     @FXML
     public void initialize(){
         drawBoard();
+        coinSound = new AudioClip(Objects.requireNonNull(getClass().getResource("/sounds/coin.mp3")).toExternalForm());
     }
 
     @FXML
@@ -69,10 +72,10 @@ public class Connect4Controller  {
         }
     }
 
-    public void playMove(int column){
-        Connect4LogicGame.Move move = logicGame.insertDisc(column);
+    private void playMove(int column){
+        Move move = logicGame.insertDisc(column);
         if (move != null){
-            Color color = (move.player == 1) ? Color.RED : Color.YELLOW;
+            Color color = (move.player() == 1) ? Color.RED : Color.YELLOW;
 
             Circle disc = new Circle();
             disc.setFill(color);
@@ -85,10 +88,10 @@ public class Connect4Controller  {
 
             // Calcolo spostamento verticale in pixel
             double cellHeight = gridPane.getHeight() / ROWS;
-            double toY = move.row * cellHeight;
+            double toY = move.row() * cellHeight;
 
             TranslateTransition tt = new TranslateTransition(
-                    Duration.millis(120 * (move.row + 1)),
+                    Duration.millis(120 * (move.row() + 1)),
                     disc
             );
             tt.setFromY(0);
@@ -96,17 +99,17 @@ public class Connect4Controller  {
             tt.setInterpolator(Interpolator.LINEAR);
             tt.setOnFinished(e -> {
                 gridPane.getChildren().remove(disc);
-                cells[move.row][column].setFill(color);
+                cells[move.row()][column].setFill(color);
 
                 updateTurnLabel(logicGame.isPlayerOneTurn());
 
             });
             tt.play();
 
-            playSound("/sounds/coin.mp3");
+            coinSound.play();
 
-            if (logicGame.checkWin(move.player))
-                showWinner(move.player);
+            if (logicGame.checkWin(move.player()))
+                showWinner(move.player());
             else if (logicGame.isBoardFull())
                 showDraw();
         }
@@ -124,11 +127,6 @@ public class Connect4Controller  {
         );
     }
 
-    public void playSound(String path) {
-        String uri = Objects.requireNonNull(getClass().getResource(path)).toExternalForm();
-        AudioClip audioClip = new AudioClip(uri);
-        audioClip.play();
-    }
 
     private void updateTurnLabel(boolean isPlayerOneTurn) {
         if (isPlayerOneTurn) {
@@ -156,6 +154,5 @@ public class Connect4Controller  {
 
         resetGame(null);
     }
-
 
 }

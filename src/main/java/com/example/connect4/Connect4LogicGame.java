@@ -2,18 +2,6 @@ package com.example.connect4;
 
 public class Connect4LogicGame {
 
-    public class Move {
-        public final int row;
-        public final int column;
-        public final int player;
-
-        public Move(int row, int column, int player) {
-            this.row = row;
-            this.column = column;
-            this.player = player;
-        }
-    }
-
     private final int ROWS = 6;
     private final int COLUMNS = 7;
     private final int[][] board = new int[ROWS][COLUMNS];
