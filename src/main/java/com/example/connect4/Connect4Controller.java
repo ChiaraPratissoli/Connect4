@@ -37,6 +37,12 @@ public class Connect4Controller  {
         drawBoard();
     }
 
+    @FXML
+    void resetGame(MouseEvent event) {
+        logicGame = new Connect4LogicGame();
+        drawBoard();
+    }
+
     private void drawBoard(){
         gridPane.getChildren().clear();
 
@@ -63,6 +69,49 @@ public class Connect4Controller  {
         }
     }
 
+    public void playMove(int column){
+        Connect4LogicGame.Move move = logicGame.insertDisc(column);
+        if (move != null){
+            Color color = (move.player == 1) ? Color.RED : Color.YELLOW;
+
+            Circle disc = new Circle();
+            disc.setFill(color);
+            disc.radiusProperty().bind(createRadiusBinding(gridPane, 0.9, 15));
+
+            // Aggiungo il disco nella posizione di partenza (sopra la colonna scelta, riga 0)
+            gridPane.add(disc, column, 0);
+            GridPane.setHalignment(disc, HPos.CENTER);
+            GridPane.setValignment(disc, VPos.CENTER);
+
+            // Calcolo spostamento verticale in pixel
+            double cellHeight = gridPane.getHeight() / ROWS;
+            double toY = move.row * cellHeight;
+
+            TranslateTransition tt = new TranslateTransition(
+                    Duration.millis(120 * (move.row + 1)),
+                    disc
+            );
+            tt.setFromY(0);
+            tt.setToY(toY);
+            tt.setInterpolator(Interpolator.LINEAR);
+            tt.setOnFinished(e -> {
+                gridPane.getChildren().remove(disc);
+                cells[move.row][column].setFill(color);
+
+                updateTurnLabel(logicGame.isPlayerOneTurn());
+
+            });
+            tt.play();
+
+            playSound("/sounds/coin.mp3");
+
+            if (logicGame.checkWin(move.player))
+                showWinner(move.player);
+            else if (logicGame.isBoardFull())
+                showDraw();
+        }
+    }
+
     private DoubleBinding createRadiusBinding(GridPane gridPane, double marginFactor, double minRadius){
         return Bindings.createDoubleBinding(
                 () -> {
@@ -81,55 +130,22 @@ public class Connect4Controller  {
         audioClip.play();
     }
 
-    public void playMove(int column){
-        int row = logicGame.insertDisc(column);
-        if (row != -1){
-            int player;
-            Color color;
-            if (logicGame.isPlayerOneTurn()) {
-                player = 2;     // giocatore giallo ha appena giocato
-                color = Color.YELLOW;
-                turnLabel.setText("Current turn: Player 2 (Red)");
-                turnLabel.setTextFill(Color.RED);
-            }
-            else {
-                player = 1;     // giocatore rosso ha appena giocato
-                color = Color.RED;
-                turnLabel.setText("Current turn: Player 1 (Yellow)");
-                turnLabel.setTextFill(Color.YELLOW);
-            }
-
-            Circle disc = new Circle();
-            disc.setFill(color);
-            disc.radiusProperty().bind(createRadiusBinding(gridPane, 0.9, 15));
-
-            // Aggiungo il disco nella posizione di partenza (sopra la colonna scelta, riga 0)
-            gridPane.add(disc, column, 0);
-            GridPane.setHalignment(disc, HPos.CENTER);
-            GridPane.setValignment(disc, VPos.CENTER);
-
-            // Calcolo spostamento verticale in pixel
-            double cellHeight = gridPane.getHeight() / ROWS;
-            double toY = row * cellHeight;
-
-            TranslateTransition tt = new TranslateTransition(
-                    Duration.millis(120 * (row + 1)),
-                    disc
-            );
-            tt.setFromY(0);
-            tt.setToY(toY);
-            tt.setInterpolator(Interpolator.LINEAR);
-            tt.setOnFinished(e -> {
-                gridPane.getChildren().remove(disc);
-                cells[row][column].setFill(color);
-            });
-            tt.play();
-
-            playSound("/sounds/coin.mp3");
-
-            if (logicGame.checkWin(player))
-                showWinner(player);
+    private void updateTurnLabel(boolean isPlayerOneTurn) {
+        if (isPlayerOneTurn) {
+            turnLabel.setText("Current turn: Player 1 (Red)");
+            turnLabel.setTextFill(Color.RED);
+        } else {
+            turnLabel.setText("Current turn: Player 2 (Yellow)");
+            turnLabel.setTextFill(Color.YELLOW);
         }
+    }
+
+    private void showDraw() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, "It's a draw!", ButtonType.OK);
+        alert.setHeaderText("Game over");
+        alert.setTitle("Connect 4");
+        alert.showAndWait();
+        resetGame(null);
     }
 
     private void showWinner(int player){
@@ -141,9 +157,5 @@ public class Connect4Controller  {
         resetGame(null);
     }
 
-    @FXML
-    void resetGame(MouseEvent event) {
-        logicGame = new Connect4LogicGame();
-        drawBoard();
-    }
+
 }

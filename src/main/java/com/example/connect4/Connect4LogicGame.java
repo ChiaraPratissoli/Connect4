@@ -1,25 +1,34 @@
 package com.example.connect4;
 
 public class Connect4LogicGame {
+
+    public class Move {
+        public final int row;
+        public final int column;
+        public final int player;
+
+        public Move(int row, int column, int player) {
+            this.row = row;
+            this.column = column;
+            this.player = player;
+        }
+    }
+
     private final int ROWS = 6;
     private final int COLUMNS = 7;
     private final int[][] board = new int[ROWS][COLUMNS];
     private boolean playerOneTurn = true;
 
-    public int insertDisc(int column){
+    public Move insertDisc(int column){
         for (int row = ROWS - 1; row >= 0; row--){
             if (board[row][column] == 0){
-                int player;
-                if (playerOneTurn)
-                    player = 1;     // giocatore rosso
-                else
-                    player = 2;     // giocatore giallo
+                int player = playerOneTurn ? 1 : 2;
                 board[row][column] = player;
                 playerOneTurn = !playerOneTurn;
-                return row;
+                return new Move(row, column, player);
             }
         }
-        return -1;  // colonna piena
+        return null;  // colonna piena
     }
 
     public boolean isPlayerOneTurn(){
@@ -67,5 +76,13 @@ public class Connect4LogicGame {
             }
         }
         return false;
+    }
+
+    public boolean isBoardFull() {
+        for (int column = 0; column < COLUMNS; column++) {
+            if (board[0][column] == 0)
+                return false;
+        }
+        return true;
     }
 }
