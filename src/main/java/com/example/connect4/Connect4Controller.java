@@ -8,9 +8,7 @@ import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -20,7 +18,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
-import java.awt.*;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -28,9 +25,10 @@ import java.util.Optional;
 public class Connect4Controller  {
     @FXML
     private GridPane gridPane;
-
     @FXML
     private Label turnLabel;
+    @FXML
+    private ToggleButton muteButton;
 
     private final int ROWS = 6;
     private final int COLUMNS = 7;
@@ -38,6 +36,7 @@ public class Connect4Controller  {
     private Connect4LogicGame logicGame = new Connect4LogicGame();
 
     private AudioClip coinSound;
+    private boolean soundOn = true;
 
     @FXML
     public void initialize(){
@@ -51,13 +50,18 @@ public class Connect4Controller  {
         drawBoard();
     }
 
+    @FXML
+    void sound(MouseEvent event) {
+        soundOn = !soundOn;
+        muteButton.setText(soundOn ? "🔊 Sound On" : "🔇 Muted");
+    }
+
+
     private void drawBoard(){
         gridPane.getChildren().clear();
 
         turnLabel.setText("Current turn: Player 1 (Red)");
         turnLabel.setTextFill(Color.RED);
-
-        double minRadius = 15;
 
         for (int row = 0; row < ROWS; row++){
             for (int column = 0; column < COLUMNS; column++){
@@ -75,6 +79,7 @@ public class Connect4Controller  {
                 circle.setOnMouseClicked(e -> playMove(currentCol));
             }
         }
+        addColumnHoverEffect();
     }
 
     private void playMove(int column){
@@ -111,7 +116,7 @@ public class Connect4Controller  {
             });
             tt.play();
 
-            coinSound.play();
+            playCoinSound();
 
             if (logicGame.checkWin(move.player()))
                 showEndGame("Player " + move.player() + " wins!",
@@ -143,6 +148,37 @@ public class Connect4Controller  {
         } else {
             turnLabel.setText("Current turn: Player 2 (Yellow)");
             turnLabel.setTextFill(Color.YELLOW);
+        }
+    }
+
+    private void playCoinSound(){
+        if (soundOn && coinSound != null)
+            coinSound.play();
+    }
+
+    private void addColumnHoverEffect(){
+        for (int column = 0; column < COLUMNS; column++){
+            final int currentColumn = column;
+            for (int row = 0; row < ROWS; row++){
+                Circle circle = cells[row][column];
+
+                circle.setOnMouseEntered(e -> highlightColumn(currentColumn, true));
+                circle.setOnMouseExited(e -> highlightColumn(currentColumn, false));
+            }
+        }
+    }
+
+    private void highlightColumn(int column, boolean highlight){
+        for (int row = 0; row < ROWS; row++){
+            Circle circle = cells[row][column];
+            if (highlight){
+                circle.setStroke(logicGame.isPlayerOneTurn() ? Color.RED : Color.YELLOW);
+                circle.setStrokeWidth(3);
+            }
+            else {
+                circle.setStroke(Color.BLACK);
+                circle.setStrokeWidth(1);
+            }
         }
     }
 
