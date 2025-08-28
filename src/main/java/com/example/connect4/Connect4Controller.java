@@ -2,6 +2,7 @@ package com.example.connect4;
 
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
@@ -10,6 +11,8 @@ import javafx.geometry.VPos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.media.AudioClip;
@@ -17,7 +20,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
+import java.awt.*;
 import java.util.Objects;
+import java.util.Optional;
 
 
 public class Connect4Controller  {
@@ -109,9 +114,12 @@ public class Connect4Controller  {
             coinSound.play();
 
             if (logicGame.checkWin(move.player()))
-                showWinner(move.player());
+                showEndGame("Player " + move.player() + " wins!",
+                        "Congratulations! Player " + move.player() + " has won the game.",
+                        "/icons/winner_icon.png");
             else if (logicGame.isBoardFull())
-                showDraw();
+                showEndGame("⚖ Draw!", "The board is full and no one has won.",
+                        "/icons/draw_icon.png");
         }
     }
 
@@ -138,21 +146,30 @@ public class Connect4Controller  {
         }
     }
 
-    private void showDraw() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, "It's a draw!", ButtonType.OK);
-        alert.setHeaderText("Game over");
+    private void showEndGame(String header, String content, String iconPath){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Connect 4");
-        alert.showAndWait();
-        resetGame(null);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+
+        ButtonType newGame = new ButtonType("New Game");
+        ButtonType exit = new ButtonType("Exit");
+        alert.getButtonTypes().setAll(newGame, exit);
+
+        if(iconPath != null){
+            ImageView image = new ImageView(new Image(
+                    Objects.requireNonNull(Objects.requireNonNull(getClass().getResource(iconPath)).toExternalForm())
+            ));
+
+            image.setFitHeight(50);
+            image.setFitWidth(50);
+            alert.setGraphic(image);
+        }
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == newGame)
+            resetGame(null);
+        else if (result.isPresent() && result.get() == exit)
+            Platform.exit();
     }
-
-    private void showWinner(int player){
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Player " + player + " won the game!", ButtonType.OK);
-        alert.setHeaderText("Game over");
-        alert.setTitle("Connect 4");
-        alert.showAndWait();
-
-        resetGame(null);
-    }
-
 }
