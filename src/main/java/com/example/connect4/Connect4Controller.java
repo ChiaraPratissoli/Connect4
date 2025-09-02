@@ -11,7 +11,6 @@ import javafx.geometry.VPos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
@@ -40,22 +39,50 @@ public class Connect4Controller  {
 
     @FXML
     public void initialize(){
+        showWelcomePopup();
         drawBoard();
         coinSound = new AudioClip(Objects.requireNonNull(getClass().getResource("/sounds/coin.mp3")).toExternalForm());
     }
 
     @FXML
-    void resetGame(MouseEvent event) {
+    void resetGame() {
         logicGame = new Connect4LogicGame();
         drawBoard();
     }
 
     @FXML
-    void sound(MouseEvent event) {
+    void sound() {
         soundOn = !soundOn;
         muteButton.setText(soundOn ? "🔊 Sound On" : "🔇 Muted");
     }
 
+    private void showWelcomePopup(){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Welcome to Connect 4!");
+        alert.setHeaderText("Rules of the Game");
+        alert.setContentText(
+                """
+                        1) Players take turns dropping colored discs into the grid.
+                        2) The first player to connect four discs in a row wins.
+                           (Horizontal, Vertical, or Diagonal)
+                        3) If the grid fills up with no winner, the game ends in a draw.
+                           Good luck and have fun!""");
+
+        alert.getButtonTypes().setAll(ButtonType.OK);
+
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStylesheets().add(
+                Objects.requireNonNull(getClass().getResource("/css/popup-style.css")).toExternalForm());
+
+        ImageView image = new ImageView(new Image(Objects.requireNonNull(
+                Objects.requireNonNull(getClass().getResource("/icons/welcome_icon.png")).toExternalForm())));
+
+        image.setFitWidth(64);
+        image.setFitHeight(64);
+        alert.setGraphic(image);
+
+        alert.showAndWait();
+    }
 
     private void drawBoard(){
         gridPane.getChildren().clear();
@@ -188,6 +215,10 @@ public class Connect4Controller  {
         alert.setHeaderText(header);
         alert.setContentText(content);
 
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStylesheets().add(
+                Objects.requireNonNull(getClass().getResource("/css/popup-style.css")).toExternalForm());
+
         ButtonType newGame = new ButtonType("New Game");
         ButtonType exit = new ButtonType("Exit");
         alert.getButtonTypes().setAll(newGame, exit);
@@ -204,7 +235,7 @@ public class Connect4Controller  {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == newGame)
-            resetGame(null);
+            resetGame();
         else if (result.isPresent() && result.get() == exit)
             Platform.exit();
     }
