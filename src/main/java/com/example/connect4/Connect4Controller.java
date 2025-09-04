@@ -29,10 +29,13 @@ public class Connect4Controller  {
     @FXML
     private ToggleButton muteButton;
 
-    private final int ROWS = 6;
-    private final int COLUMNS = 7;
-    private final Circle[][] cells = new Circle[ROWS][COLUMNS];
+    private static final int ROWS = 6;
+    private static final int COLUMNS = 7;
+    private static final Circle[][] cells = new Circle[ROWS][COLUMNS];
     private Connect4LogicGame logicGame = new Connect4LogicGame();
+
+    private static final double marginFactor = 0.9;
+    private static final double minRadius = 15;
 
     private AudioClip coinSound;
     private boolean soundOn = true;
@@ -93,7 +96,7 @@ public class Connect4Controller  {
         for (int row = 0; row < ROWS; row++){
             for (int column = 0; column < COLUMNS; column++){
                 Circle circle = new Circle();
-                circle.radiusProperty().bind(createRadiusBinding(gridPane, 0.9, 15));
+                circle.radiusProperty().bind(createRadiusBinding(gridPane));
                 circle.setFill(Color.WHITE);
                 circle.setStroke(Color.BLACK);
                 cells[row][column] = circle;
@@ -116,7 +119,7 @@ public class Connect4Controller  {
 
             Circle disc = new Circle();
             disc.setFill(color);
-            disc.radiusProperty().bind(createRadiusBinding(gridPane, 0.9, 15));
+            disc.radiusProperty().bind(createRadiusBinding(gridPane));
 
             // Aggiungo il disco nella posizione di partenza (sopra la colonna scelta, riga 0)
             gridPane.add(disc, column, 0);
@@ -155,12 +158,12 @@ public class Connect4Controller  {
         }
     }
 
-    private DoubleBinding createRadiusBinding(GridPane gridPane, double marginFactor, double minRadius){
+    private DoubleBinding createRadiusBinding(GridPane gridPane){
         return Bindings.createDoubleBinding(
                 () -> {
                     double cellHeight = gridPane.getHeight() / ROWS;
                     double cellWidth = gridPane.getWidth() / COLUMNS;
-                    return Math.max(minRadius, Math.min(cellHeight, cellWidth) / 2 * marginFactor);
+                    return Math.max(Connect4Controller.minRadius, Math.min(cellHeight, cellWidth) / 2 * Connect4Controller.marginFactor);
                 },
                 gridPane.widthProperty(),
                 gridPane.heightProperty()
