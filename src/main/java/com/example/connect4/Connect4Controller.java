@@ -82,6 +82,7 @@ public class Connect4Controller  {
 
         image.setFitWidth(64);
         image.setFitHeight(64);
+
         alert.setGraphic(image);
 
         alert.showAndWait();
@@ -121,7 +122,7 @@ public class Connect4Controller  {
             disc.setFill(color);
             disc.radiusProperty().bind(createRadiusBinding(gridPane));
 
-            // Aggiungo il disco nella posizione di partenza (sopra la colonna scelta, riga 0)
+            // Aggiungo il disco nella posizione di partenza (sopra la colonna scelta, riga 0, quella più in alto)
             gridPane.add(disc, column, 0);
             GridPane.setHalignment(disc, HPos.CENTER);
             GridPane.setValignment(disc, VPos.CENTER);
@@ -130,6 +131,7 @@ public class Connect4Controller  {
             double cellHeight = gridPane.getHeight() / ROWS;
             double toY = move.row() * cellHeight;
 
+            // Animazione disco che scende
             TranslateTransition tt = new TranslateTransition(
                     Duration.millis(120 * (move.row() + 1)),
                     disc
@@ -146,6 +148,7 @@ public class Connect4Controller  {
             });
             tt.play();
 
+            // Suono moneta
             playCoinSound();
 
             if (logicGame.checkWin(move.player()))
