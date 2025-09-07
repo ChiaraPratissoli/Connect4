@@ -17,15 +17,15 @@ Un semplice gioco di **Forza 4** sviluppato in **Java** con **JavaFX**.
 ## 📖 Regole del gioco
 
 I giocatori si alternano inserendo un gettone colorato in una colonna.
+
 Vince il primo che connette 4 gettoni consecutivi:
--Orizzontale
--Verticale
--Diagonale
+- Orizzontale
+- Verticale
+- Diagonale
+
 Se la griglia si riempie senza vincitori → la partita termina in pareggio.
 
-
 ---
-
 
 ## 📸 Screenshot
 
